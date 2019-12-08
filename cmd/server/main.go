@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	pingpong "github.com/maykonlf/grpc-gateway-sample/protos"
+	"github.com/maykonlf/grpc-gateway-sample/internal/server"
+	v1 "github.com/maykonlf/grpc-gateway-sample/pkg/api/v1"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -12,15 +13,15 @@ import (
 )
 
 func main() {
-	serverCert, err := credentials.NewServerTLSFromFile("certs/server.crt", "certs/server.key")
+	serverCert, err := credentials.NewServerTLSFromFile("server.crt", "server.key")
 	if err != nil {
 		log.Fatalln("failed to create server cert", err)
 	}
 
 	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
-	pingpong.RegisterPingPongServer(grpcServer, NewMyServer())
+	v1.RegisterPingPongServer(grpcServer, server.NewMyServer())
 
-	clientCert, err := credentials.NewClientTLSFromFile("certs/server.crt", "")
+	clientCert, err := credentials.NewClientTLSFromFile("server.crt", "")
 	if err != nil {
 		log.Fatalln("failed to create client cert", err)
 	}
@@ -34,11 +35,11 @@ func main() {
 	}
 
 	router := runtime.NewServeMux()
-	if err = pingpong.RegisterPingPongHandler(context.Background(), router, conn); err != nil {
+	if err = v1.RegisterPingPongHandler(context.Background(), router, conn); err != nil {
 		log.Fatalln("failed to register gateway", err)
 	}
 
-	log.Fatalln(http.ListenAndServeTLS(":8080", "certs/server.crt", "certs/server.key", httpGrpcRouter(grpcServer, router)))
+	log.Fatalln(http.ListenAndServeTLS(":8080", "server.crt", "server.key", httpGrpcRouter(grpcServer, router)))
 }
 
 func httpGrpcRouter(grpcServer *grpc.Server, httpHandler http.Handler) http.Handler {

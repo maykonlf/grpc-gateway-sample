@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	pingpong "github.com/maykonlf/grpc-gateway-sample/protos"
+	v1 "github.com/maykonlf/grpc-gateway-sample/pkg/api/v1"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	clientCert, err := credentials.NewClientTLSFromFile("certs/server.crt", "")
+	clientCert, err := credentials.NewClientTLSFromFile("server.crt", "")
 	if err != nil {
 		log.Fatalln("failed to create client cert", err)
 	}
@@ -25,10 +25,10 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := pingpong.NewPingPongClient(conn)
+	client := v1.NewPingPongClient(conn)
 
 	for i := 0; i < 1000; i++ {
-		response, err := client.Ping(context.Background(), &pingpong.PingRequest{
+		response, err := client.Ping(context.Background(), &v1.PingRequest{
 			Ping: fmt.Sprintf("%d", i),
 		})
 		if err != nil {

@@ -1,0 +1,46 @@
+syntax = "proto3";
+package v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option go_package = "v1";
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+    info: {
+        title: "PingPong Service";
+        version: "1.0";
+        contact: {
+            name: "ping-pong";
+            url: "https://ping-pong";
+            email: "mail@pingpong.com";
+        };
+    };
+    schemes: HTTPS;
+    consumes: "application/json";
+    produces: "application/json";
+    responses: {
+        key: "400";
+        value: {
+            description: "invalid payload";
+            schema: {
+                json_schema: {
+                    type: STRING;
+                }
+            };
+        };
+    };
+};
+
+service PingPong {
+    rpc Ping(PingRequest) returns (PingResponse) {
+        option (google.api.http) = {post: "/ping" body: "*"};
+    }
+}
+
+message PingRequest {
+    string ping = 1;
+}
+
+message PingResponse {
+    string pong = 2;
+}
